@@ -1,0 +1,36 @@
+QTextEdit {
+    background: #fff;
+    font-family: "微软雅黑","Lato", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+}
+
+QTabWidget {
+    background-color: transparent;
+    font-family: "微软雅黑","Lato", Helvetica, Arial, sans-serif;
+}
+
+QTabWidget::pane {
+    border: 2px;
+}
+
+QTabBar::tab {
+    border: none;
+    background-color:#34495E;
+    color: white;
+    width: 65px;
+    height: 30px;
+    padding: 0px 5px;
+    font-size: 12px;
+}
+
+QTabBar::tab:hover {
+    background-color:#2C3E50;
+    color: white;
+}
+
+QTabBar::tab:selected {
+    background-color:#2C3E50;
+    color: white;
+}
+
+

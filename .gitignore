@@ -1,1 +1,10 @@
 /qtbox
+/gohook/
+/robotgo/
+/deploy/
+/darwin/
+/vendor/
+/rcc.cpp
+/rcc.qrc
+/rcc_cgo_darwin_darwin_amd64.go
+/.idea/

@@ -8,15 +8,19 @@ exec("go mod vendor") or {
 
 println("拷贝依赖")
 
-cp_all("robotgo", "vendor/github.com/go-vgo/", true) or {
+rmdir_all("vendor/github.com/go-vgo/robotgo/")
+rmdir_all("vendor/github.com/go-vgo/gohook/")
+
+// 挺low的cp居然不能自动创建目录
+mkdir("vendor/github.com/go-vgo/robotgo/")
+mkdir("vendor/github.com/go-vgo/gohook/")
+
+cp_all("robotgo", "vendor/github.com/go-vgo/robotgo", true) or {
   panic(err)
 }
 
-cp_all("gohook", "vendor/github.com/robotn/", true) or {
+cp_all("gohook", "vendor/github.com/robotn/gohook", true) or {
   panic(err)
 }
 
 println("done!")
-
-
-
