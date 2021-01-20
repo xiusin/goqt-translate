@@ -1,20 +1,25 @@
 #!/usr/local/bin/v run
 
-println ("打包")
+import term
+
+term.clear() 
+
+println(term.ok_message('开始打包应用'))
+
 
 exec("qtdeploy build desktop") or {
-	panic(err)
+	println(term.fail_message(err))
+	return 
 }
 
 mkdir("deploy/darwin/goqt-translate.app/Contents/MacOS/qss")
 
 cp_all("qss", "deploy/darwin/goqt-translate.app/Contents/MacOS/qss", true) or {
-  panic(err)
+  println(term.fail_message(err))
+  return
 }
 
-exec("qtdeploy run desktop") or {
-	panic(err)
-}
+exec("qtdeploy run desktop") 
 
-println("done!")
+println(term.ok_message("done!"))
 
