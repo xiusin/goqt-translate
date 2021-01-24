@@ -156,7 +156,6 @@ func (tu *TranslateUI) registerEvent() {
 	})
 
 	go tu.listenDoubleShiftClick()
-	go tu.tickCloseTransTipsWidget()
 	go tu.listenKeyBoardOrMouseEvent()
 
 }
@@ -177,13 +176,14 @@ func (tu *TranslateUI) listenKeyBoardOrMouseEvent() {
 			ctrlKeyCode = 3675 // option
 			altKeyCode = 29
 		}
+
 		if ev.Keycode == ctrlKeyCode && ev.Kind == hook.KeyHold {
 			if !tu.isKeyDown {
 				tu.isKeyDown = true
 			}
 		}
 
-		if runtime.GOOS == "darwin" { // macos 添加新key
+		if runtime.GOOS == "darwin" && !tu.isKeyDown { // macos 添加新key
 			ctrlKeyCode = 3676
 			if ev.Keycode == ctrlKeyCode && ev.Kind == hook.KeyHold {
 				if !tu.isKeyDown {
@@ -191,13 +191,9 @@ func (tu *TranslateUI) listenKeyBoardOrMouseEvent() {
 				}
 			}
 		}
-		if ev.Keycode > 0 {
-			fmt.Println(ev.Keycode)
-		}
 		// 使用alt键
 		if ev.Keycode == altKeyCode && ev.Kind == hook.KeyUp {
 			if tu.IsHidden() { // 非展示状态
-				fmt.Println("alt 按下")
 				if atomic.LoadUint32(&tu.shiftClick) == 0 {
 					go func() { tu.shiftClickEventCh <- 1 }()
 				} else if atomic.LoadUint32(&tu.shiftClick) == 1 {
@@ -206,38 +202,22 @@ func (tu *TranslateUI) listenKeyBoardOrMouseEvent() {
 			}
 		}
 
-		//if ev.Kind == hook.MouseDrag && tu.isKeyDown { // 监听鼠标抬起事件
-		//	if !tu.isDrag {
-		//		tu.isDrag = true
-		//	}
-		//}
-
 		if ev.Keycode == ctrlKeyCode && ev.Kind == hook.KeyUp {
 			if tu.isKeyDown && tu.isDrag {
 				tu.isDrag = false
 				old := tu.clipboard.Text(gui.QClipboard__Clipboard) // 记录之前的内容
 				if runtime.GOOS == "darwin" {
-					time.Sleep(time.Millisecond * 1000)
-					//fmt.Println("--- Please press ctrl + shift + q to stop hook ---")
-					//hook.Register(hook.KeyUp, []string{"c", "cmd"}, func(e hook.Event) {
-					//	fmt.Println("ctrl-shift-q press end")
-					//	hook.End()
-					//})
-					//robotgo.KeyTap("c", "rcmd", "lcmd", 12)
-					robotgo.KeyToggle("lcmd", "down")
+					if err := helper.ExecToCopy(); err != nil {
+						fmt.Println("执行命令失败:", err)
+						tu.Unlock()
+						continue
+					}
 					time.Sleep(time.Millisecond * 30)
-					robotgo.KeyTap("c")
-					time.Sleep(time.Millisecond * 30)
-					robotgo.KeyToggle("lcmd", "up")
-
-					//robotgo.KeyToggle("c", "down")
-					//time.Sleep(time.Millisecond * 30)
-					//robotgo.KeyToggle("c", "up")
-					//robotgo.KeyToggle("cmd", "up")
 				} else {
 					robotgo.KeyTap("c", "ctrl")
 				}
 				selectionTxt := tu.clipboard.Text(gui.QClipboard__Clipboard)
+				fmt.Println("选中内容：", selectionTxt)
 				tu.clipboard.SetText(old, gui.QClipboard__Clipboard)
 				tu.fromInput.SetText(selectionTxt)
 				tu.HideFromButton() // 隐藏相关按钮
@@ -253,15 +233,6 @@ func (tu *TranslateUI) listenKeyBoardOrMouseEvent() {
 		}
 		tu.Unlock()
 	}
-}
-
-func (tu *TranslateUI) tickCloseTransTipsWidget() {
-	//for range time.Tick(time.Second * 4) {
-	//	if !tu.Geometry().Contains(tu.MapFromGlobal(gui.QCursor_Pos()), true) && !tu.IsFull() {
-	//		tu.ShowFromButton()
-	//		tu.Hide()
-	//	}
-	//}
 }
 
 func (tu *TranslateUI) ShowFromButton() {
@@ -322,7 +293,6 @@ func transEvent(tu *TranslateUI, btn *widgets.QPushButton) func(bool) {
 			{"讯飞", "en", "cn", tu.xunfei, translate.TranslateXunfei},
 		}
 		txt := strings.Trim(tu.fromInput.ToPlainText(), " \n")
-		fmt.Println("翻译原文本", txt)
 		if txt != "" {
 			go func() {
 				btn.SetText("正在翻译")
@@ -342,7 +312,6 @@ func transEvent(tu *TranslateUI, btn *widgets.QPushButton) func(bool) {
 						} else {
 							v.Obj.SetText(rest)
 						}
-						fmt.Println("翻译: ", v.Name)
 					}(v)
 				}
 				tu.wg.Wait()
@@ -351,7 +320,6 @@ func transEvent(tu *TranslateUI, btn *widgets.QPushButton) func(bool) {
 					x, y := robotgo.GetMousePos() // 获取当前鼠标位置并展示弹窗
 					tu.SetGeometry2(x, y, 300, 350)
 				}
-				fmt.Println("显示翻译内容")
 				tu.Show()
 				tu.tabs.TabBarClicked(0) // 默认显示第一个
 				tu.requesting = false
