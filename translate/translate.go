@@ -1,7 +1,6 @@
 package translate
 
 import (
-	"fmt"
 	"goqt-translate/libs/helper"
 	"goqt-translate/libs/translate"
 	"runtime"
@@ -170,27 +169,19 @@ func (tu *TranslateUI) listenKeyBoardOrMouseEvent() {
 	defer hook.End()
 	for ev := range s {
 		tu.Lock()
-		var ctrlKeyCode uint16 = 29 // ctrl
-		var altKeyCode uint16 = 56  // alt
+		ctrlKeyCode := map[uint16]struct{}{29: {}}
+		var altKeyCode uint16 = 56 // alt
 		if runtime.GOOS == "darwin" {
-			ctrlKeyCode = 3675 // option
+			ctrlKeyCode = map[uint16]struct{}{3675: {}, 3676: {}} // option
 			altKeyCode = 29
 		}
 
-		if ev.Keycode == ctrlKeyCode && ev.Kind == hook.KeyHold {
+		if _, ok := ctrlKeyCode[ev.Keycode]; ok && ev.Kind == hook.KeyHold {
 			if !tu.isKeyDown {
 				tu.isKeyDown = true
 			}
 		}
 
-		if runtime.GOOS == "darwin" && !tu.isKeyDown { // macos 添加新key
-			ctrlKeyCode = 3676
-			if ev.Keycode == ctrlKeyCode && ev.Kind == hook.KeyHold {
-				if !tu.isKeyDown {
-					tu.isKeyDown = true
-				}
-			}
-		}
 		// 使用alt键
 		if ev.Keycode == altKeyCode && ev.Kind == hook.KeyUp {
 			if tu.IsHidden() { // 非展示状态
@@ -202,13 +193,13 @@ func (tu *TranslateUI) listenKeyBoardOrMouseEvent() {
 			}
 		}
 
-		if ev.Keycode == ctrlKeyCode && ev.Kind == hook.KeyUp {
+		if _, ok := ctrlKeyCode[ev.Keycode]; ok && ev.Kind == hook.KeyUp {
 			if tu.isKeyDown && tu.isDrag {
 				tu.isDrag = false
 				old := tu.clipboard.Text(gui.QClipboard__Clipboard) // 记录之前的内容
 				if runtime.GOOS == "darwin" {
 					if err := helper.ExecToCopy(); err != nil {
-						fmt.Println("执行命令失败:", err)
+						logger.Print("执行命令失败:", err)
 						tu.Unlock()
 						continue
 					}
@@ -217,7 +208,7 @@ func (tu *TranslateUI) listenKeyBoardOrMouseEvent() {
 					robotgo.KeyTap("c", "ctrl")
 				}
 				selectionTxt := tu.clipboard.Text(gui.QClipboard__Clipboard)
-				fmt.Println("选中内容：", selectionTxt)
+				logger.Print("选中内容：", selectionTxt)
 				tu.clipboard.SetText(old, gui.QClipboard__Clipboard)
 				tu.fromInput.SetText(selectionTxt)
 				tu.HideFromButton() // 隐藏相关按钮

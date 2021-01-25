@@ -17,12 +17,12 @@ exec("qtdeploy build desktop") or {
 mkdir("deploy/darwin/goqt-translate.app/Contents/MacOS/qss")
 
 cp_all("qss", "deploy/darwin/goqt-translate.app/Contents/MacOS/qss", true) or {
-  println(term.fail_message(err))
+  println("qss: ${term.fail_message(err)}")
   return
 }
 
 cp("goqt-translate.icns", "deploy/darwin/goqt-translate.app/Contents/Resources/goqt-translate.icns") or {
-    println(term.fail_message(err))
+    println("icns: ${term.fail_message(err)}")
     return
 }
 

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"goqt-translate/libs/components"
 	"goqt-translate/libs/helper"
 	"goqt-translate/translate"
 	"math/rand"
 	"os"
 	"path/filepath"
-	"runtime"
 	"runtime/debug"
 	"time"
 
@@ -19,7 +19,6 @@ import (
 
 func init() {
 	loggerName := filepath.Join(helper.AppDirPath("logger.log"))
-	_ = os.Remove(loggerName)
 	f, _ := os.OpenFile(loggerName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModePerm)
 	logger.SetOutput(f)
 	logger.SetLogLevel(logger.DebugLevel)
@@ -35,18 +34,29 @@ func main() {
 		}
 	}()
 	app := widgets.NewQApplication(len(os.Args), os.Args)
-
 	app.SetAttribute(core.Qt__AA_EnableHighDpiScaling, true)
-
 	app.SetWindowIcon(gui.NewQIcon5("qrc:/qml/qrc/youdao.png"))
 	app.SetStyle(widgets.QStyleFactory_Create("Funsion"))
 	app.SetQuitOnLastWindowClosed(false)
 
+	flag := core.Qt__Tool | core.Qt__FramelessWindowHint | core.Qt__X11BypassWindowManagerHint
+	//这样新建的窗口在taskbar没有对应的任务图标，并且不 nTopHint | Qt::X11BypassWindowManagerHint);
+	window := widgets.NewQMainWindow(nil, flag) // 无边框
+
 	trans := translate.NewTranslateUI(app)
-	if runtime.GOOS == "darwin" {
-		fmt.Println("双击alt打开翻译界面")
-		fmt.Println("按下alt选中要翻译的文本放开alt即可弹出翻译内容")
-	}
-	trans.Show()
+	components.InitSysTray(context.Background(),[]components.MenuAction{
+		{
+			Text: "轻翻译",
+			Callback: func(checked bool) {
+				trans.Show()
+			},
+		},
+		{
+			Text: "画图板",
+			Callback: func(checked bool) {
+				components.InitDraw(app)
+			},
+		},
+	}, window)
 	app.Exec()
 }
