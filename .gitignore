@@ -7,3 +7,7 @@
 /rcc.qrc
 /rcc_cgo_darwin_darwin_amd64.go
 /.idea/
+/statics/
+/packrd/
+/build
+/main-packr.go

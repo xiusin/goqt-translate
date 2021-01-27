@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"github.com/gobuffalo/packr/v2"
 	"goqt-translate/libs/components"
 	"goqt-translate/libs/helper"
 	"goqt-translate/translate"
 	"math/rand"
+	"net/http"
 	"os"
 	"path/filepath"
-	"runtime/debug"
 	"time"
 
 	"github.com/therecipe/qt/core"
@@ -29,10 +30,21 @@ func init() {
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Error("主函数异常：", string(debug.Stack()))
-			os.Exit(0)
+			logger.Error("主函数异常")
+			os.Exit(1)
 		}
 	}()
+
+	go func() {
+		box := packr.New("drawboard", "./statics/drawboard")
+		http.Handle("/", http.FileServer(box))
+		err := http.ListenAndServe(":11731", nil)
+		if err != nil {
+			logger.Error(err)
+		}
+	}()
+
+
 	app := widgets.NewQApplication(len(os.Args), os.Args)
 	app.SetAttribute(core.Qt__AA_EnableHighDpiScaling, true)
 	app.SetWindowIcon(gui.NewQIcon5("qrc:/qml/qrc/youdao.png"))
@@ -48,7 +60,11 @@ func main() {
 		{
 			Text: "轻翻译",
 			Callback: func(checked bool) {
-				trans.Show()
+				if trans.IsHidden() {
+					trans.Show()
+				} else {
+					trans.Hide()
+				}
 			},
 		},
 		{

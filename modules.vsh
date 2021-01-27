@@ -1,8 +1,12 @@
 #!/usr/local/bin/v run
 
+import term
+
 defer {
     rm("modules")
 }
+
+term.clear()
 
 println ("同步vendor")
 

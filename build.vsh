@@ -7,6 +7,10 @@ defer {
     rm("build")
 }
 
+if !is_dir("packrd") {
+    exec("packr2")
+}
+
 println(term.ok_message('开始打包应用'))
 
 exec("qtdeploy build desktop") or {
