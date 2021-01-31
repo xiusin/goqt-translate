@@ -318,3 +318,17 @@ func transEvent(tu *TranslateUI, btn *widgets.QPushButton) func(bool) {
 		}
 	}
 }
+
+func (tu *TranslateUI) Show() {
+	tu.QWidget.Show()
+	if tu.IsMinimized() {
+		tu.SetWindowState(core.Qt__WindowActive | tu.WindowState()&^core.Qt__WindowMinimized)
+	} else {
+		tu.QWidget.SetWindowState(core.Qt__WindowActive)
+	}
+	tu.SetAttribute(core.Qt__WA_Mapped, true)
+	tu.ActivateWindow()
+	tu.Raise()
+	tu.SetFocus2()
+	tu.fromInput.SetFocus2()
+}

@@ -36,3 +36,12 @@ func InArray(idx int, arr []int) bool {
 	}
 	return false
 }
+
+func InArrayStr(str string, arr []string) bool {
+	for _, i := range arr {
+		if i == str {
+			return true
+		}
+	}
+	return false
+}
