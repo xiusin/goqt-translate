@@ -30,6 +30,7 @@ cp("goqt-translate.icns", "deploy/darwin/goqt-translate.app/Contents/Resources/g
     return
 }
 
-exec("qtdeploy run desktop")
+// exec("qtdeploy run desktop")
+exec("./deploy/darwin/goqt-translate.app/Contents/MacOS/goqt-translate")
 
 println(term.ok_message("done!"))
