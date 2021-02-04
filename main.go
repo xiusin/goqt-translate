@@ -49,10 +49,10 @@ func main() {
 	app.SetWindowIcon(gui.NewQIcon5("qrc:/qml/qrc/youdao.png"))
 	app.SetStyle(widgets.QStyleFactory_Create("Funsion"))
 	app.SetQuitOnLastWindowClosed(false)
-	flag := core.Qt__Tool | core.Qt__FramelessWindowHint | core.Qt__X11BypassWindowManagerHint
+	flag := core.Qt__Tool | core.Qt__FramelessWindowHint | core.Qt__X11BypassWindowManagerHint | core.Qt__WindowStaysOnTopHint
 	//这样新建的窗口在taskbar没有对应的任务图标，并且不 nTopHint | Qt::X11BypassWindowManagerHint);
 	window := widgets.NewQMainWindow(nil, flag) // 无边框
-	components.InitKeyboard(app, window)
+	components.InitKeyboard(app)                //, window
 	//trans := translate.NewTranslateUI(app)
 	components.InitSysTray(context.Background(), []components.MenuAction{
 		{
@@ -72,5 +72,6 @@ func main() {
 			},
 		},
 	}, window)
+
 	app.Exec()
 }
