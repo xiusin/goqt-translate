@@ -2,8 +2,6 @@ package components
 
 import (
 	"fmt"
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/speaker"
 	"goqt-translate/libs/sound"
 	"strings"
 	"sync"
@@ -227,10 +225,9 @@ type keyBoardListener struct {
 	keyCodeMapKeyChar map[uint16]string
 	win               *widgets.QMainWindow
 	keyStringBuf      strings.Builder
-	soundCh           chan struct{}
 }
 
-var keyboardListenerInstance = &keyBoardListener{soundCh: make(chan struct{})}
+var keyboardListenerInstance = &keyBoardListener{}
 
 func InitKeyboard(app *widgets.QApplication) *keyBoardListener { //, win *widgets.QMainWindow
 	keyboardListenerInstance.Do(func() {
@@ -243,42 +240,37 @@ func InitKeyboard(app *widgets.QApplication) *keyBoardListener { //, win *widget
 		keyboardListenerInstance.keyCodeMapKeyChar = map[uint16]string{}
 		keyboardListenerInstance.ModifierMapping = map[string]bool{}
 
-		keyboardListenerInstance.timer = time.AfterFunc(500*time.Millisecond, func() {
+		keyboardListenerInstance.timer = time.AfterFunc(2000*time.Millisecond, func() {
 			keyboardListenerInstance.Lock()
 			defer keyboardListenerInstance.Unlock()
 			keyboardListenerInstance.keyStringBuf.Reset() // 清空内容
 			// 创建新的label
 		})
-		//keyboardListenerInstance.win = win
-		mm := app.PrimaryScreen().AvailableGeometry()
 		win := widgets.NewQWidget(nil, core.Qt__FramelessWindowHint|core.Qt__WindowStaysOnTopHint)
-
-		//opt := widgets.NewQStyleOption(0, 0)
-		//// 画笔
-		//painter := gui.NewQPainter()
-		//painter.SetRenderHint(gui.QPainter__Antialiasing, true)
-		//painter.SetBrush(gui.NewQBrush())
-		//
-		//painter.SetPen2(gui.NewQColor2(core.Qt__transparent))
-		//
-		//win.Style().DrawPrimitive(widgets.QStyle__PE_Widget, opt, painter, nil)
-		//rect := win.Rect()
-		//rect.SetWidth(rect.Width() - 1)
-		//rect.SetHeight(rect.Height() - 1)
-		//painter.DrawRoundedRect3(rect, 10, 10, 0)
-
-		win.SetGeometry2(15, mm.Height()-15, 0, 0)
+		win.SetVisible(true)
 		win.SetAttribute(core.Qt__WA_TranslucentBackground, true)
 		win.SetAutoFillBackground(false)
+		//painter := gui.NewQPainter()
+		//win.InitPainter(painter)
+		//win.ConnectPaintEvent(func(event *gui.QPaintEvent) {
+		//	painter.SetPen3(core.Qt__NoPen)
+		//	painter.SetBrush(gui.NewQBrush4(core.Qt__red, 0))
+		//	painter.SetRenderHint(gui.QPainter__Antialiasing, true)
+		//	rect := win.Rect()
+		//	rect.SetWidth(rect.Width() - 1)
+		//	rect.SetHeight(rect.Height() - 1)
+		//	painter.DrawRoundedRect3(rect, 10, 10, 0)
+		//})
+
 		keyboardListenerInstance.globalLabel = widgets.NewQLabel(nil, core.Qt__FramelessWindowHint|core.Qt__WindowStaysOnTopHint)
 		keyboardListenerInstance.globalLabel.SetScaledContents(true)
-		keyboardListenerInstance.globalLabel.SetStyleSheet("QLabel{ color: #fff; border: 2px solid #fff; border-radius: 10px; background: rgba(0,0,0,0.4); font-size: 30px; }")
+		keyboardListenerInstance.globalLabel.SetStyleSheet("QLabel{ color: #fff; border: 2px solid #fff; border-radius: 0wwwwwwwwwwwwpx; background: rgba(0,0,0,0.4); font-size: 30px; }")
+		keyboardListenerInstance.globalLabel.SetGeometry2(15, app.PrimaryScreen().AvailableSize().Height()-35, 0, 0)
 
-		//keyboardListenerInstance.globalLabel.Show()
 		for s, v := range hook.Keycode {
 			keyboardListenerInstance.keyCodeMapKeyChar[v] = s
 		}
-		streamer := sound.InitStreamer()
+		player, soundData := sound.InitStreamer()
 		go func() {
 			s := hook.Start()
 			for ev := range s {
@@ -295,24 +287,12 @@ func InitKeyboard(app *widgets.QApplication) *keyBoardListener { //, win *widget
 					func(keyChar string) {
 						keyboardListenerInstance.Lock()
 						defer keyboardListenerInstance.Unlock()
-						streamer.Seek(0)
-						//resampled := beep.Resample(4, format.SampleRate, sr, streamer)
-						//speaker.Play(resampled)
-						speaker.Play(beep.Seq(streamer, beep.Callback(func() {
-							keyboardListenerInstance.soundCh <- struct{}{}
-						})))
-						<-keyboardListenerInstance.soundCh
-						//t, ok := keyboardListenerInstance.prevEnterTime[keyChar]
-						//if ok {
-						//	if time.Now().Sub(t) < 50*time.Millisecond {
-						//		return
-						//	}
-						//}
+						go func() {
+							p := player.NewPlayer()
+							p.Write(soundData)
+							p.Close()
+						}()
 						keyboardListenerInstance.prevEnterTime[keyChar] = time.Now()
-						//if ev.Keychar == 65535 && ev.Kind == hook.KeyHold  { // ok, _ := keyboardListenerInstance.ModifierMapping[kc]; ok
-						//	keyboardListenerInstance.keyStringBuf.Reset()
-						//	return
-						//}
 						if len(keyChar) > 1 {
 							keyboardListenerInstance.ModifierMapping[kc] = true
 							if t, ok := keyMap[keyChar]; ok {
@@ -323,16 +303,8 @@ func InitKeyboard(app *widgets.QApplication) *keyBoardListener { //, win *widget
 								}
 							}
 						}
-
-						keyboardListenerInstance.timer.Reset(500 * time.Millisecond)
+						keyboardListenerInstance.timer.Reset(2000 * time.Millisecond)
 						keyboardListenerInstance.keyStringBuf.WriteString(keyChar)
-
-						//fmt.Println("width", keyboardListenerInstance.globalLabel.Width(),
-						//	"height", keyboardListenerInstance.globalLabel.Height())
-						//win.SetFixedSize2(
-						//	keyboardListenerInstance.globalLabel.Width(),
-						//	keyboardListenerInstance.globalLabel.Height(),
-						//)
 					}(kc)
 				}
 			}
@@ -366,8 +338,6 @@ func InitKeyboard(app *widgets.QApplication) *keyBoardListener { //, win *widget
 		})
 		qtimer.SetInterval(50)
 		qtimer.Start2()
-		//
-		//
 	})
 	return keyboardListenerInstance
 }

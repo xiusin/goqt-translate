@@ -78,6 +78,7 @@ github.com/hajimehoshi/go-mp3 v0.1.1 h1:Y33fAdTma70fkrxnc9u50Uq0lV6eZ+bkAlssdMmC
 github.com/hajimehoshi/go-mp3 v0.1.1/go.mod h1:4i+c5pDNKDrxl1iu9iG90/+fhP37lio6gNhjCx9WBJw=
 github.com/hajimehoshi/oto v0.1.1/go.mod h1:hUiLWeBQnbDu4pZsAhOnGqMI1ZGibS6e2qhQdfpwz04=
 github.com/hajimehoshi/oto v0.3.1/go.mod h1:e9eTLBB9iZto045HLbzfHJIc+jP3xaKrjZTghvb6fdM=
+github.com/hajimehoshi/oto v0.6.4/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=
 github.com/hajimehoshi/oto v0.7.1 h1:I7maFPz5MBCwiutOrz++DLdbr4rTzBsbBuV2VpgU9kk=
 github.com/hajimehoshi/oto v0.7.1/go.mod h1:wovJ8WWMfFKvP587mhHgot/MBr4DnNy9m6EepeVGnos=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
@@ -191,6 +192,8 @@ github.com/tencentcloud/tencentcloud-sdk-go v1.0.89/go.mod h1:asUz5BPXxgoPGaRgZa
 github.com/therecipe/qt v0.0.0-20200904063919-c0c124a5770d h1:T+d8FnaLSvM/1BdlDXhW4d5dr2F07bAbB+LpgzMxx+o=
 github.com/therecipe/qt v0.0.0-20200904063919-c0c124a5770d/go.mod h1:SUUR2j3aE1z6/g76SdD6NwACEpvCxb3fvG82eKbD6us=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
+github.com/tosone/minimp3 v0.0.0-20200831154756-20dedd3e2ed2 h1:d7dQ6h3FPWtKd7NV6f7M8fdNgjIt9vT+xnpwovxxxFM=
+github.com/tosone/minimp3 v0.0.0-20200831154756-20dedd3e2ed2/go.mod h1:HCvEdmjUMndxiG57DXxWWkqZSPs2cfGCnpflt2K1j0U=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/vcaesar/gops v0.10.1 h1:RFNFMuiuoLzZpibAhGuOJ7BDbOUWPL19S8gWhODaJfU=
 github.com/vcaesar/gops v0.10.1/go.mod h1:301l7s41oGSmfI7F9ojpRHeF9MzZZ6Mv5vC038riB50=

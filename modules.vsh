@@ -6,7 +6,7 @@ term.clear()
 
 println ("同步vendor")
 
-exec("go mod vendor") or {
+exec("go mod tidy && go mod vendor") or {
 	panic(err)
 }
 
