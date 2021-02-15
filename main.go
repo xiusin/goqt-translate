@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/packr/v2"
 	"goqt-translate/libs/components"
 	"goqt-translate/libs/helper"
+	"goqt-translate/translate"
 	"math/rand"
 	"net/http"
 	"os"
@@ -27,7 +28,6 @@ func init() {
 }
 
 func main() {
-
 	defer func() {
 		if err := recover(); err != nil {
 			logger.Error("主函数异常")
@@ -53,16 +53,16 @@ func main() {
 	//这样新建的窗口在taskbar没有对应的任务图标，并且不 nTopHint | Qt::X11BypassWindowManagerHint);
 	window := widgets.NewQMainWindow(nil, flag) // 无边框
 	components.InitKeyboard(app)                //, window
-	//trans := translate.NewTranslateUI(app)
+	trans := translate.NewTranslateUI(app)
 	components.InitSysTray(context.Background(), []components.MenuAction{
 		{
 			Text: "轻翻译",
 			Callback: func(checked bool) {
-				//if trans.IsHidden() {
-				//	trans.Show()
-				//} else {
-				//	trans.Hide()
-				//}
+				if trans.IsHidden() {
+					trans.Show()
+				} else {
+					trans.Hide()
+				}
 			},
 		},
 		{
