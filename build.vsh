@@ -24,11 +24,6 @@ cp('goqt-translate.icns', 'deploy/darwin/goqt-translate.app/Contents/Resources/g
 	return
 }
 
-cp('misc.mp3', 'deploy/darwin/goqt-translate.app/Contents/MacOS/misc.mp3') or {
-	println('misc.mp3: ${term.fail_message(err)}')
-	return
-}
-
 println(term.ok_message('构建完成!'))
 
 system('./deploy/darwin/goqt-translate.app/Contents/MacOS/goqt-translate')

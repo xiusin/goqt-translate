@@ -1,6 +1,8 @@
 ### 相关资料
 - https://eastmanreference.com/how-to-automate-your-keyboard-in-mac-os-x-with-applescript
 
+- https://blog.csdn.net/weixin_43968923/category_9825462.html GO-QT教程
+
 ### TODO
 - 录音翻译 
 - https://dict.youdao.com/dictvoice?audio=hello&type=1

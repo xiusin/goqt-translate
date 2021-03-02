@@ -1,0 +1,101 @@
+package main
+
+import "C"
+import (
+	"context"
+	"github.com/giorgisio/goav/avformat"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+)
+
+func _main() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	path, err := exec.LookPath("ffmpeg")
+	if err != nil {
+		err = nil
+		// 使用Binding Api
+		// Register all formats and codecs
+		//func AvRegisterAll() { 需要修改包
+		//	C.avdevice_register_all()
+		//}
+		avformat.AvRegisterAll()
+
+		audioInFormatCtx := avformat.AvformatAllocContext()
+
+		inputFormat := avformat.AvFindInputFormat("avfoundation")
+
+		// Open video file
+		if avformat.AvformatOpenInput(&audioInFormatCtx, ":0", inputFormat, nil) != 0 {
+			log.Println("Error: Couldn't open file.")
+			return
+		}
+
+		if audioInFormatCtx.AvformatFindStreamInfo(nil) < 0 {
+			log.Println("无法打开音频流信息")
+			return
+		}
+		var audioInStream *avformat.Stream
+		for i := 0; i < int(audioInFormatCtx.NbStreams()); i++ {
+			if audioInFormatCtx.Streams()[i].Codec().GetCodecType() == avformat.AVMEDIA_TYPE_AUDIO {
+				audioInStream = audioInFormatCtx.Streams()[i]
+				break
+			}
+		}
+
+		if audioInStream == nil {
+			log.Println("无法找到一个音频流")
+			return
+		}
+
+		//audioInCodec := avcodec.AvcodecFindDecoder(audioInStream.GetCodecId())
+		//audioInCodecCtx := audioInCodec.AvcodecAllocContext3()
+		//
+		//if audioInCodecCtx.AvcodecOpen2(audioInCodec, nil) < 0 {
+		//	log.Println("Could not open video codec.")
+		//	return
+		//}
+		//
+
+		//
+		//ctx.AvDumpFormat(0, ":0", 0)
+		//
+		//
+		//
+		//var record = true
+		//go func() {
+		//	time.Sleep(time.Second * 5)
+		//	record = false
+		//}()
+		//pkt := avcodec.AvPacketAlloc()
+		//os.Remove("aaa.mp3")
+		//outFd, _ := os.Create("aaa.mp3")
+		////bf := bufio.NewWriter(outFd)
+		//for record {
+		//	ret := ctx.AvReadFrame(pkt)
+		//	if ret < 0 && ret != -35 {
+		//		break
+		//	}
+		//	if pkt.Data() == nil {
+		//		continue
+		//	}
+		//	outFd.Write([]byte{*pkt.Data()})
+		//	pkt.AvPacketUnref()
+		//}
+		//pkt.AvFreePacket()
+		//ctx.AvformatCloseInput()
+	} else {
+		f := "voice.wav"
+		cmd := exec.CommandContext(ctx, path, "-f", "avfoundation", "-i", ":0", "-y", f)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			if !strings.Contains(err.Error(), "killed") {
+				panic(err)
+			}
+		}
+	}
+}

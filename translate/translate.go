@@ -130,6 +130,27 @@ func NewTranslateUI(app *widgets.QApplication) *TranslateUI {
 		shiftClickCanelEventCh: make(chan struct{}),
 		shiftClickEventCh:      make(chan uint8),
 	}
+
+	soundLabel := widgets.NewQLabel(win, 0) //":/qml/qrc/sound.png"
+	pixmap := gui.NewQPixmap3(":/qml/qrc/sound.png", "", core.Qt__AutoColor)
+
+	pixmap = pixmap.Scaled2(32, 32, core.Qt__KeepAspectRatio, core.Qt__SmoothTransformation)
+
+	soundLabel.SetPixmap(pixmap)
+	soundLabel.SetGeometry2(240, 330, 35, 35)
+	soundLabel.SetToolTip("双击播放声音")
+	soundLabel.ConnectMouseDoubleClickEvent(func(event *gui.QMouseEvent) {
+		txt := strings.TrimSpace(tu.fromInput.ToPlainText())
+		if len(txt) > 0 {
+			toLang := "en"
+			if !helper.IsChinese(&txt) {
+				toLang = "zh"
+			}
+			translate.ToVoice(txt, toLang)
+		}
+	})
+	soundLabel.Show()
+
 	tu.registerEvent()
 	tu.ShowFromButton()
 	return tu
@@ -208,7 +229,6 @@ func (tu *TranslateUI) listenKeyBoardOrMouseEvent() {
 					robotgo.KeyTap("c", "ctrl")
 				}
 				selectionTxt := tu.clipboard.Text(gui.QClipboard__Clipboard)
-				logger.Print("选中内容：", selectionTxt)
 				tu.clipboard.SetText(old, gui.QClipboard__Clipboard)
 				tu.fromInput.SetText(selectionTxt)
 				tu.HideFromButton() // 隐藏相关按钮
@@ -289,6 +309,7 @@ func transEvent(tu *TranslateUI, btn *widgets.QPushButton) func(bool) {
 				btn.SetText("正在翻译")
 				tu.requesting = true
 				isChinese := helper.IsChinese(&txt)
+				// 转换声音
 				tu.wg.Add(len(objs))
 				for _, v := range objs {
 					go func(v *transType) {
