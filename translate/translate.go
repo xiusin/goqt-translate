@@ -39,6 +39,7 @@ type TranslateUI struct {
 	shiftClick             uint32
 	shiftClickEventCh      chan uint8
 	shiftClickCanelEventCh chan struct{}
+	soundPlaying           bool
 
 	wg sync.WaitGroup
 }
@@ -140,13 +141,22 @@ func NewTranslateUI(app *widgets.QApplication) *TranslateUI {
 	soundLabel.SetGeometry2(240, 330, 35, 35)
 	soundLabel.SetToolTip("双击播放声音")
 	soundLabel.ConnectMouseDoubleClickEvent(func(event *gui.QMouseEvent) {
+		if tu.soundPlaying {
+			return
+		}
 		txt := strings.TrimSpace(tu.fromInput.ToPlainText())
 		if len(txt) > 0 {
 			toLang := "en"
 			if !helper.IsChinese(&txt) {
 				toLang = "zh"
 			}
-			translate.ToVoice(txt, toLang)
+			go func() {
+				tu.soundPlaying = true
+				defer func() {
+					tu.soundPlaying = false
+				}()
+				translate.ToVoice(txt, toLang)
+			}()
 		}
 	})
 	soundLabel.Show()
@@ -170,7 +180,7 @@ func (tu *TranslateUI) registerEvent() {
 
 	tu.ConnectCloseEvent(func(event *gui.QCloseEvent) {
 		go func() {
-			time.Sleep(time.Millisecond * 200) // 关闭是延迟显示
+			time.Sleep(time.Millisecond * 200)
 			tu.ShowFromButton()
 		}()
 	})
@@ -214,6 +224,7 @@ func (tu *TranslateUI) listenKeyBoardOrMouseEvent() {
 			}
 		}
 
+		// todo 处理粘键问题
 		if _, ok := ctrlKeyCode[ev.Keycode]; ok && ev.Kind == hook.KeyUp {
 			if tu.isKeyDown && tu.isDrag {
 				tu.isDrag = false
